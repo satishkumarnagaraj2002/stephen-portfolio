@@ -46,31 +46,76 @@ const categories = [
   "Social Media Influencer",
 ];
 
-const galleryItems = [
-  { category: "Fashion & Editorial", shape: "portrait" },
-  { category: "Portrait Photography", shape: "landscape" },
-  { category: "Contemporary & Streetwear", shape: "portrait" },
-  { category: "Lifestyle & Creative", shape: "square" },
-  { category: "Commercial Modelling", shape: "landscape" },
+const photoGroups: [string, string[]][] = [
+  ["8.07.33", ["1", ""]],
+  ["8.07.40", [""]],
+  ["8.07.41", ["1", ""]],
+  ["8.07.42", [""]],
+  ["8.07.43", [""]],
+  ["8.07.44", ["1", ""]],
+  ["8.07.45", [""]],
+  ["8.07.46", ["1", ""]],
+  ["8.07.47", [""]],
+  ["8.07.48", [""]],
+  ["8.07.49", [""]],
+  ["8.07.51", [""]],
+  ["8.07.52", [""]],
+  ["8.07.53", [""]],
+  ["8.07.54", [""]],
+  ["8.07.55", [""]],
+  ["8.07.59", [""]],
+  ["8.08.00", [""]],
+  ["8.08.01", [""]],
+  ["8.08.03", [""]],
+  ["8.08.04", [""]],
+  ["8.08.06", [""]],
+  ["8.08.07", [""]],
+  ["8.08.08", [""]],
+  ["8.08.10", [""]],
+  ["8.08.11", [""]],
+  ["8.08.13", [""]],
+  ["8.08.14", ["1", ""]],
+  ["8.08.16", ["1", ""]],
+  ["8.08.19", [""]],
+  ["8.08.20", ["1", "2", "3", "4", ""]],
+  ["8.08.21", ["1", "2", "3", "4", "5", ""]],
+  ["8.08.22", ["1", "2", "3", "4", ""]],
+  ["8.08.23", ["1", "2", "3", "4", "5", "6", "7", "8", "9", ""]],
+  ["8.08.24", ["1", "2", "3", "4", "5", "6", "7", "8", "9", ""]],
+  ["8.08.25", ["1", "2", "3", "4", "5", "6", "7", ""]],
+  ["8.08.26", ["1", "2", "3", "4", "5", "6", "7", "8", "9", ""]],
+  ["8.08.27", ["1", "2", "3", "4", "5", "6", "7", "8", "9", ""]],
 ];
 
-function PhotoPlaceholder({
-  className = "",
-  label = "PHOTO TO BE ADDED",
-}: {
-  className?: string;
-  label?: string;
-}) {
-  return (
-    <div className={`photo-placeholder ${className}`} aria-label={label} role="img">
-      <span className="placeholder-mark" aria-hidden="true">
-        <span />
-        <span />
-      </span>
-      <span className="placeholder-caption">{label}</span>
-    </div>
-  );
-}
+const streetStylePhotos = new Set([
+  1, 2, 4, 6, 20, 25, 35, 38, 39, 42, 43, 44, 47, 52, 54, 55, 60, 61, 70,
+  72, 74, 76, 77, 79, 80, 84, 85, 89, 90, 91, 92, 93, 96,
+]);
+const campaignPhotos = new Set([16, 23, 45, 55, 60, 73, 81, 88, 94, 97, 99]);
+const movementPhotos = new Set([26, 33, 37, 50, 53, 58, 66, 78, 95]);
+const landscapePhotos = new Set([4, 5, 15, 33, 54, 58, 62, 63, 67, 68, 72]);
+
+const photoFilenames = photoGroups.flatMap(([time, suffixes]) =>
+  suffixes.map((suffix) => `WhatsApp Image 2026-11-10 at ${time} PM${suffix ? ` (${suffix})` : ""}.jpeg`),
+);
+const galleryItems = photoFilenames.map((filename, imageIndex) => ({
+  src: `/${encodeURIComponent(filename)}`,
+  category: campaignPhotos.has(imageIndex)
+    ? "Campaign & Commercial"
+    : movementPhotos.has(imageIndex)
+      ? "Sport & Movement"
+      : streetStylePhotos.has(imageIndex)
+        ? "Street Style & Lifestyle"
+        : "Studio Editorial",
+  shape: landscapePhotos.has(imageIndex) ? "landscape" : "portrait",
+  imageIndex,
+}));
+
+const featuredPhotos = {
+  hero: galleryItems[0].src,
+  about: galleryItems[31].src,
+  philosophy: galleryItems[56].src,
+};
 
 function Arrow({ diagonal = false }: { diagonal?: boolean }) {
   return (
@@ -173,7 +218,13 @@ function App() {
 
       <main>
         <section className="hero" id="home">
-          <PhotoPlaceholder className="hero-photo" label="HERO IMAGE — ADD PHOTO" />
+          <img
+            className="hero-photo"
+            src={featuredPhotos.hero}
+            alt=""
+            fetchPriority="high"
+          />
+          <div className="hero-photo-frame" aria-hidden="true" />
           <div className="hero-shade" />
           <div className="hero-content">
             <p className="eyebrow hero-kicker">LONDON · GHANA · EVERYWHERE</p>
@@ -213,7 +264,12 @@ function App() {
           </div>
           <div className="about-grid">
             <div className="about-image-wrap reveal">
-              <PhotoPlaceholder className="about-photo" label="PORTRAIT — ADD PHOTO" />
+              <img
+                className="about-photo"
+                src={featuredPhotos.about}
+                alt="Stephen Appiah S.A. in a studio fashion portrait"
+                loading="lazy"
+              />
               <span className="image-index">S.A. / 01</span>
             </div>
             <div className="about-copy reveal">
@@ -254,7 +310,7 @@ function App() {
             <p className="section-aside">Every frame<br />tells a different story.</p>
           </div>
           <div className="gallery-toolbar reveal">
-            <span className="eyebrow">PORTFOLIO / {String(visibleGallery.length).padStart(2, "0")}</span>
+            <span className="eyebrow">PORTFOLIO / {String(visibleGallery.length).padStart(3, "0")}</span>
             <div className="gallery-filters" aria-label="Filter portfolio images">
               {galleryFilters.map((filter) => (
                 <button
@@ -269,15 +325,18 @@ function App() {
             </div>
           </div>
           <div className="gallery-grid">
-            {visibleGallery.map((item, index) => (
-              <article className={`gallery-item ${item.shape} reveal`} key={item.category}>
-                <PhotoPlaceholder
+            {visibleGallery.map((item) => (
+              <article className={`gallery-item ${item.shape} reveal`} key={item.src}>
+                <img
                   className="gallery-photo"
-                  label={`IMAGE ${String(index + 1).padStart(2, "0")} — ADD PHOTO`}
+                  src={item.src}
+                  alt={`Stephen Appiah S.A. — fashion portfolio look ${String(item.imageIndex + 1).padStart(2, "0")}`}
+                  loading="lazy"
+                  decoding="async"
                 />
                 <div className="gallery-caption">
                   <span>{item.category}</span>
-                  <span className="gallery-number">0{index + 1}</span>
+                  <span className="gallery-number">{String(item.imageIndex + 1).padStart(3, "0")}</span>
                 </div>
               </article>
             ))}
@@ -389,7 +448,12 @@ function App() {
         </section>
 
         <section className="philosophy">
-          <PhotoPlaceholder className="philosophy-photo" label="CAMPAIGN IMAGE — ADD PHOTO" />
+          <img
+            className="philosophy-photo"
+            src={featuredPhotos.philosophy}
+            alt=""
+            loading="lazy"
+          />
           <div className="philosophy-shade" />
           <div className="philosophy-content reveal">
             <p className="eyebrow">A PERSONAL PHILOSOPHY</p>
